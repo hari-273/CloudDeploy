@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Deploy to EC2
@@ -21,13 +21,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          timeout: 60s
-          command_timeout: 20m
           debug: true
-
           script: |
             whoami
-            pwd
+            hostname
 
             cd /home/ubuntu/CloudDeploy
 
@@ -39,5 +36,3 @@ jobs:
             docker build -t clouddeploy .
 
             docker run -d --name clouddeploy -p 80:80 clouddeploy
-
-            docker ps
