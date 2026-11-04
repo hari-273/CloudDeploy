@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Test SSH
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
 
         with:
@@ -26,3 +26,14 @@ jobs:
           script: |
             whoami
             hostname
+
+            cd /home/ubuntu/CloudDeploy
+
+            git pull origin main
+
+            docker stop clouddeploy || true
+            docker rm clouddeploy || true
+
+            docker build -t clouddeploy .
+
+            docker run -d --name clouddeploy -p 80:80 clouddeploy
