@@ -1,39 +1,14 @@
-name: CloudDeploy CI/CD
+- name: Deploy to EC2
+  uses: appleboy/ssh-action@v1
 
-on:
-  push:
-    branches:
-      - main
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_SSH_KEY }}
+    passphrase: ""
+    port: 22
+    debug: true
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Start SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Add EC2 to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to EC2
-        run: |
-          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/CloudDeploy
-
-            git pull origin main
-
-            docker stop clouddeploy || true
-            docker rm clouddeploy || true
-
-            docker build -t clouddeploy .
-
-            docker run -d --name clouddeploy -p 80:80 clouddeploy
-          EOF
+    script: |
+      whoami
+      hostname
